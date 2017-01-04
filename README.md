@@ -1,35 +1,46 @@
 ## Dockerfile for MEAN stack
 
 ### Prerequisites
-- [Docker](https://www.docker.com/)
 
-### Build
+If you are using Mac, you can use [Docker for Mac](https://www.docker.com/products/docker#/mac).
 
-Build Docker container using `docker build`:
+If you are using Windows, you can use [Docker for Windows](https://www.docker.com/products/docker#/windows).
 
-```
-docker build -t mean - < Dockerfile 
-```
+If you are using Linux, you have to install Docker manually [following their guide](https://docs.docker.com/engine/installation/linux/).
 
-`mean` tag can be changed if you want a more descriptive tag container.
+### Run using Docker Compose
 
-### Run
-
-Create a network between your container and your host first using `docker network`:
+You can use the Docker Compose YAML file to start this Docker container. You have to build it first:
 
 ```
-docker network create --subnet=192.168.10.0/24 dockernet
+docker-composer build
 ```
 
-Where `192.168.10.0` is a private network ([reserved private space address](https://en.wikipedia.org/wiki/Private_network#Private_IPv4_address_spaces)) and `dockernet` is the same of our new interface (can be different).
-
-Run Docker container using `docker run` by assigning an IP to our container inside our recently created network:
+Then run it:
 
 ```
-docker run --net dockernet --ip 192.168.10.22 -it -p 3000:3000 -p 27017:27017 mean
+docker-composer run
 ```
 
-We have to expose ports again because we want to access to our container from outside Docker. Ports were mapped to the same ports from Docker container to host machine. Map your ports properly according to your own configuration.
+Now you will have 2 separates containers: one for MongoDB and one for the web itself.
+
+### Run manually
+
+We have to pull MongoDB Docker container first:
+
+```
+docker run -p 27017:27017 -d --name db mongo
+```
+
+This will run MongoDB container from Docker Hub as a background process (`-d` option) with `db` name and with `27017` port exposed.
+
+After this, we can build our own Docker container:
+
+```
+docker run -p 3000:3000 --link db:db_1 mean
+```
+
+This will run our own container (which will install prerequisites and Node.js), with `3000` port exposed (used by Node.js by default) and with an special link provided by Docker to our previous MongoDB container.
 
 ### Related links
 - [How to Install MEAN on Ubuntu 16.04](https://linuxacademy.com/howtoguides/posts/show/topic/11960-how-to-install-mean-on-ubuntu-1604)
