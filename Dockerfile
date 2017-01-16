@@ -1,11 +1,11 @@
 # We are going to use Ubuntu 16.04
-FROM ubuntu:16.04
+FROM ubuntu:14.04
 MAINTAINER Fran Verona
 
 LABEL Description="Dockerfile for MEAN stack"
 
-# We need to expose ports for MEAN. MongoDB (27017) and Node.js (3000)
-EXPOSE 3000 27017
+# We need to expose ports for MongoDB (27017) and Node.js (3000)
+EXPOSE 3000 27017 35729
 
 # Install prerequisites
 RUN apt-get -q update && apt-get install -y -qq \
@@ -15,7 +15,8 @@ RUN apt-get -q update && apt-get install -y -qq \
   gcc \
   make \
   build-essential \
-  sudo apt-utils \
+  sudo \
+  apt-utils \
   && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install Node.js
@@ -30,3 +31,31 @@ RUN npm install --quiet -g bower gulp \
 
 # MongoDB will run from a separate official container called 'mongo' (https://hub.docker.com/_/mongo/).
 # See the README for more information
+
+# Let's setup our project. We need to create a working directory first, clone the project and configure it
+
+RUN mkdir -p /usr/src/app
+WORKDIR /user/src/app
+
+# Clone Mean.io repository
+RUN git clone https://github.com/linnovate/mean.git /user/src/app
+
+# Install Mean.io interpreter
+RUN npm install --quiet -g mean-cli \
+  && npm cache clean
+
+# Install server dependencies using npm
+RUN npm install --quiet \
+  && npm cache clean
+
+# Install client dependencies using bower
+RUN bower install --config.interactive=false --quiet --allow-root
+
+# Set some environment variables
+ENV NODE_ENV development
+ENV PORT 3000  
+ENV DB_PORT_27017_TCP_ADDR db
+
+# Start the server
+#CMD ["npm", "start"]
+CMD ["gulp"]
