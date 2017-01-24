@@ -4,7 +4,7 @@ MAINTAINER Fran Verona
 
 LABEL Description="Dockerfile for MEAN stack"
 
-# We need to expose ports for MongoDB (27017) and Node.js (3000)
+# We need to expose ports for Node.js (3000), MongoDB (27017) and LiveReload (35729)
 EXPOSE 3000 27017 35729
 
 # Install prerequisites
