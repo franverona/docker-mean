@@ -1,4 +1,4 @@
-# We are going to use Ubuntu 16.04
+# We are going to use Ubuntu 14.04
 FROM ubuntu:14.04
 MAINTAINER Fran Verona
 
